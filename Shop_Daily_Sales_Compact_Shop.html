@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Shop Daily Sales</title>
+<style>
+:root{--bg:#0b1020;--panel:#151d33;--panel2:#10172a;--line:#33415f;--text:#f5f7ff;--muted:#aebbd4;--cyan:#5ee7f2;--green:#53e39a;--pink:#ff77cb;--orange:#ffc66d;--purple:#a99bff;--red:#ff687e}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top left,#202b50 0,#0b1020 42%,#080b15 100%);color:var(--text);font:16px system-ui,-apple-system,Arial,sans-serif;min-height:100vh}
+header{padding:18px 15px;background:linear-gradient(120deg,#11182c,#20264b);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;box-shadow:0 5px 20px #0005;text-align:center}
+h1{font-size:23px;margin:0;color:var(--cyan);letter-spacing:.5px;text-align:center}
+.wrap{padding:13px;max-width:1000px;margin:auto}.card{background:linear-gradient(145deg,#19223b,#12192c);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:13px;box-shadow:0 7px 22px #0002}
+h2{font-size:17px;margin:0 0 12px;color:var(--cyan)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{min-width:0}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:5px}input,textarea,select{width:100%;background:#0b1120;color:var(--text);border:1px solid #455579;border-radius:10px;padding:11px;font:inherit;min-width:0;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px #5ee7f222}input[type=number]{appearance:textfield}textarea{resize:vertical;min-height:60px}.full{grid-column:1/-1}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}button{border:0;border-radius:10px;padding:11px 13px;font-weight:750;font-size:14px;background:linear-gradient(120deg,#5ee7f2,#5ac6ff);color:#07111b;cursor:pointer;box-shadow:0 3px 9px #0002}
+button:active{transform:scale(.98)}button.secondary{background:#27334e;color:var(--text);border:1px solid #4a5b7d;box-shadow:none}button.danger{background:#9b3049;color:white;box-shadow:none}button.purple{background:#6653bb;color:white}button.small{padding:7px 9px;font-size:12px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stat{background:linear-gradient(140deg,#10172a,#19233c);border:1px solid var(--line);padding:11px;border-radius:12px;min-width:0}
+.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:20px;margin-top:3px;overflow-wrap:anywhere}.green{color:var(--green)}.pink{color:var(--pink)}.orange{color:var(--orange)}.purpleText{color:var(--purple)}
+.table-wrap{overflow:auto;border-radius:10px;border:1px solid var(--line)}table{border-collapse:collapse;width:100%;min-width:690px;background:#0f1628}th,td{border:1px solid #303d59;padding:9px 8px;text-align:center;white-space:nowrap}th{background:#080d19;color:var(--cyan)}td:first-child{text-align:left}tfoot{font-weight:800;color:var(--cyan)}.muted{color:var(--muted);font-size:13px}.rowhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.empty{text-align:center;padding:22px;color:var(--muted)}.hidden{display:none!important}.shopbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center}.shop-actions{display:flex;gap:6px;flex-wrap:wrap}.shop-badge{display:inline-block;background:#25375a;color:#aeefff;border:1px solid #3f5b86;border-radius:999px;padding:3px 8px;font-size:11px;margin-top:4px}.shop-card{padding:10px 12px;margin-bottom:9px}.shop-card h2{margin:0;font-size:15px;display:flex;align-items:center;gap:7px;cursor:pointer;min-height:24px}.shop-toggle-mark{font-size:17px;color:var(--muted);margin-left:4px}.shop-controls{padding-top:10px}.shop-card .shop-actions button{padding:8px 9px;font-size:12px}.shop-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:10px}.shop-choice{background:#0b1120;color:var(--text);border:1px solid #455579;box-shadow:none;text-align:left;overflow-wrap:anywhere}.shop-choice.active{border-color:var(--cyan);background:#203552;color:var(--cyan)}.shop-actions{justify-content:flex-start}
+@media(min-width:650px){.stats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(4,1fr)}.shopbar{grid-template-columns:minmax(0,1fr) auto}}
+@media(max-width:420px){.shopbar{grid-template-columns:minmax(0,1fr) auto;gap:6px}.shop-actions{justify-content:flex-end}.shop-actions button{padding:7px 8px;font-size:11px}.shop-card{padding:8px 10px}.shop-card .muted{margin-top:4px}.stat strong{font-size:18px}}
+</style>
+</head>
+<body>
+<header><h1>SHOP DAILY SALES</h1></header>
+<main class="wrap">
+<section class="card shop-card" id="shopCard">
+<div class="rowhead shop-heading"><h2 id="shopToggle" role="button" tabindex="0" aria-expanded="false">🏪 <span id="currentShopName">Shop</span> <span class="shop-toggle-mark" id="shopToggleMark">＋</span></h2></div>
+<div class="shop-controls hidden" id="shopControls">
+<div id="shopList" class="shop-list" aria-label="Choose a shop"></div>
+<div class="shop-actions"><button id="addShop">＋ Add Shop</button><button class="secondary" id="renameShop">Rename</button><button class="danger" id="deleteShop">Delete Shop</button></div>
+</div>
+</section>
+
+<section class="card"><h2>🧾 Daily Entry</h2><div class="grid">
+<div class="field"><label for="date">Date</label><input id="date" type="date"></div>
+<div class="field"><label for="entryDay">Day</label><input id="entryDay" type="text" readonly placeholder="Day"></div>
+<div class="field"><label for="cash">Cash Sale (R)</label><input id="cash" type="number" min="0" step="0.01" placeholder="0"></div>
+<div class="field"><label for="card">Card Sale (R)</label><input id="card" type="number" min="0" step="0.01" placeholder="0"></div>
+</div><div class="buttons"><button id="save">Save Daily Record</button><button class="secondary" id="clear">Clear Form</button></div></section>
+
+<section class="card"><div class="rowhead"><h2>📊 Sales Reports</h2>
+<div class="grid">
+<div class="field"><label for="reportType">Report Period</label><select id="reportType"><option value="date">Specific Date</option><option value="week">Week</option><option value="month" selected>Month</option><option value="year">Year</option></select></div>
+<div class="field" id="dateFilter"><label for="reportDate">Select Date</label><input id="reportDate" type="date"></div>
+<div class="field hidden" id="weekFilter"><label for="weekDate">Choose any date in week</label><input id="weekDate" type="date"></div>
+<div class="field hidden" id="monthFilter"><label for="month">Select Month</label><input id="month" type="month" aria-label="Select month"></div>
+<div class="field hidden" id="yearFilter"><label for="year">Select Year</label><select id="year"></select></div>
+</div></div>
+<div class="stats">
+<div class="stat"><span>Total Cash</span><strong class="green" id="sumCash">R 0</strong></div>
+<div class="stat"><span>Total Card</span><strong class="pink" id="sumCard">R 0</strong></div>
+<div class="stat"><span>Total Sale</span><strong id="sumSales">R 0</strong></div>
+<div class="stat"><span>Average Sale</span><strong class="purpleText" id="avgSale">R 0</strong></div>
+<div class="stat"><span>Minimum Daily Sale</span><strong class="orange" id="minSale">R 0</strong><span id="minDate"></span></div>
+<div class="stat"><span>Highest Daily Sale</span><strong class="green" id="maxSale">R 0</strong><span id="maxDate"></span></div>
+</div>
+<div class="buttons"><button class="secondary" id="previewPdf">Preview Report</button><button class="secondary" id="downloadPdf">Download PDF</button><button class="secondary" id="backup">Download Backup</button><button class="secondary" id="uploadBackup">Upload Backup</button><input id="backupFile" type="file" accept=".json,application/json" class="hidden"><button class="danger" id="deleteAll">Delete This Shop's Records</button></div>
+
+</section>
+
+<section class="card"><div class="rowhead"><h2>📅 Daily Records</h2><span class="muted" id="recordCount">0 records</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Day</th><th>Cash</th><th>Card</th><th>Total Sale</th><th>Actions</th></tr></thead><tbody id="rows"></tbody><tfoot id="foot"></tfoot></table></div><div id="empty" class="empty">No records for this selected period yet. Add your first daily sale above.</div></section>
+<div id="status" class="muted" role="status" aria-live="polite"></div>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), KEY='shopDailySales_multi_v2', LEGACY='shopDailySales_v1';
+let shops=[], currentShopId='', recordsByShop={};
+const now=new Date();
+const localDate=d=>{const x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,10)};
+const money=n=>'R '+Number(n||0).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=id=>Math.max(0,Number($(id).value)||0);
+const makeId=()=>('shop_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8));
+function status(s){$('status').textContent=s;if(s)setTimeout(()=>{if($('status').textContent===s)$('status').textContent=''},4000)}
+function dayName(date){return new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'})}
+function total(r){return (+r.cash||0)+(+r.card||0)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function activeRecords(){return recordsByShop[currentShopId]||(recordsByShop[currentShopId]={})}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify({version:3,shops,currentShopId,recordsByShop}));return true}catch(e){status('Could not save. Please download a backup.');return false}}
+function load(){
+ try{
+  const raw=localStorage.getItem(KEY);
+  if(raw){const x=JSON.parse(raw);if(x&&Array.isArray(x.shops)&&x.recordsByShop&&typeof x.recordsByShop==='object'){shops=x.shops.filter(s=>s&&s.id&&s.name);recordsByShop=x.recordsByShop;currentShopId=x.currentShopId||''}}
+ }catch(e){}
+ if(!shops.length){
+  let old={};try{old=JSON.parse(localStorage.getItem(LEGACY)||'{}')}catch(e){}
+  const id=makeId();shops=[{id,name:'M&H Supermarket'}];currentShopId=id;
+  const clean={};if(old&&typeof old==='object')for(const [d,r] of Object.entries(old)){if(/^\d{4}-\d{2}-\d{2}$/.test(d)&&r&&typeof r==='object')clean[d]={date:d,cash:Math.max(0,Number(r.cash)||0),card:Math.max(0,Number(r.card)||0)}}
+  recordsByShop[id]=clean;
+ }
+ if(!shops.some(s=>s.id===currentShopId))currentShopId=shops[0].id;
+ shops.forEach(s=>{if(!recordsByShop[s.id]||typeof recordsByShop[s.id]!=='object')recordsByShop[s.id]={}});
+}
+function renderShops(){
+ $('shopList').innerHTML=shops.map(s=>`<button type="button" class="shop-choice${s.id===currentShopId?' active':''}" data-shop="${esc(s.id)}">${esc(s.name)}${s.id===currentShopId?' ✓':''}</button>`).join('');
+ const s=shops.find(x=>x.id===currentShopId);$('currentShopName').textContent=s?s.name:'Select a shop';
+}
+function filtered(){
+ const rec=activeRecords(),type=$('reportType').value;let dates=Object.values(rec).filter(r=>r.date).sort((a,b)=>a.date.localeCompare(b.date));
+ if(type==='date'){const d=$('reportDate').value;dates=dates.filter(r=>r.date===d)}
+ else if(type==='week'){const d=$('weekDate').value;if(d){const dt=new Date(d+'T12:00:00'),day=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-day);const from=localDate(dt);dt.setDate(dt.getDate()+6);const to=localDate(dt);dates=dates.filter(r=>r.date>=from&&r.date<=to)}}
+ else if(type==='month'){const m=$('month').value;dates=dates.filter(r=>r.date.slice(0,7)===m)}
+ else{const y=$('year').value;dates=dates.filter(r=>r.date.slice(0,4)===y)}
+ return dates;
+}
+function render(){
+ const list=filtered(),cash=list.reduce((a,r)=>a+(+r.cash||0),0),card=list.reduce((a,r)=>a+(+r.card||0),0),sales=cash+card;
+ $('sumCash').textContent=money(cash);$('sumCard').textContent=money(card);$('sumSales').textContent=money(sales);$('avgSale').textContent=money(list.length?sales/list.length:0);
+ $('recordCount').textContent=list.length+' record'+(list.length===1?'':'s');$('empty').classList.toggle('hidden',list.length>0);
+ if(list.length){const sorted=[...list].sort((a,b)=>total(a)-total(b));$('minSale').textContent=money(total(sorted[0]));$('minDate').textContent=sorted[0].date;$('maxSale').textContent=money(total(sorted[sorted.length-1]));$('maxDate').textContent=sorted[sorted.length-1].date}
+ else{$('minSale').textContent=money(0);$('minDate').textContent='';$('maxSale').textContent=money(0);$('maxDate').textContent=''}
+ $('rows').innerHTML=list.map(r=>`<tr><td>${esc(r.date)}</td><td>${dayName(r.date)}</td><td>${money(r.cash)}</td><td>${money(r.card)}</td><td><b>${money(total(r))}</b></td><td><button class="small secondary" data-edit="${esc(r.date)}">Edit</button> <button class="small danger" data-del="${esc(r.date)}">Delete</button></td></tr>`).join('');
+ $('foot').innerHTML=list.length?`<tr><td colspan="2">PERIOD TOTAL</td><td>${money(cash)}</td><td>${money(card)}</td><td>${money(sales)}</td><td></td></tr>`:'';
+}
+function syncEntryDay(){const d=$('date').value;$('entryDay').value=d?dayName(d):''}
+function reset(){$('date').value=localDate(new Date());['cash','card'].forEach(id=>$(id).value='');$('save').textContent='Save Daily Record';syncEntryDay()}
+function edit(date){const r=activeRecords()[date];if(!r)return;$('date').value=r.date;syncEntryDay();$('cash').value=r.cash||0;$('card').value=r.card||0;$('save').textContent='Update Daily Record';window.scrollTo({top:0,behavior:'smooth'})}
+function toggleShopControls(force){const box=$('shopControls'),hide=force===undefined?!box.classList.contains('hidden'):!force;box.classList.toggle('hidden',hide);$('shopToggle').setAttribute('aria-expanded',String(!hide));$('shopToggleMark').textContent=hide?'＋':'−'}
+$('shopToggle').addEventListener('click',()=>toggleShopControls());$('shopToggle').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleShopControls()}});
+$('shopList').addEventListener('click',e=>{const b=e.target.closest('[data-shop]');if(!b)return;currentShopId=b.dataset.shop;persist();renderShops();render();reset();toggleShopControls(false)});
+$('addShop').onclick=()=>{const name=prompt('Enter new shop name:');if(name===null)return;const clean=name.trim();if(!clean){status('Shop name cannot be empty.');return}if(shops.some(s=>s.name.toLowerCase()===clean.toLowerCase())){status('A shop with this name already exists.');return}const id=makeId();shops.push({id,name:clean});recordsByShop[id]={};currentShopId=id;persist();renderShops();render();reset();toggleShopControls(false);status('New shop added.')};
+$('renameShop').onclick=()=>{const shop=shops.find(s=>s.id===currentShopId);if(!shop)return;const name=prompt('Enter new shop name:',shop.name);if(name===null)return;const clean=name.trim();if(!clean){status('Shop name cannot be empty.');return}if(shops.some(s=>s.id!==shop.id&&s.name.toLowerCase()===clean.toLowerCase())){status('A shop with this name already exists.');return}shop.name=clean;persist();renderShops();status('Shop name updated.')};
+$('deleteShop').onclick=()=>{if(shops.length<=1){status('At least one shop must remain.');return}const shop=shops.find(s=>s.id===currentShopId);if(!shop)return;if(!confirm('Delete "'+shop.name+'" and ALL of its records? Download a backup first if you need this data.'))return;delete recordsByShop[currentShopId];shops=shops.filter(s=>s.id!==currentShopId);currentShopId=shops[0].id;persist();renderShops();render();reset();toggleShopControls(false);status('Shop and its records deleted.')};
+$('date').addEventListener('change',syncEntryDay);
+$('save').addEventListener('click',()=>{const date=$('date').value;if(!date){status('Please select a date.');return}activeRecords()[date]={date,cash:num('cash'),card:num('card')};if(persist()){render();reset();status('Daily record saved.')}});
+$('clear').onclick=reset;
+$('rows').addEventListener('click',e=>{const ed=e.target.closest('[data-edit]'),del=e.target.closest('[data-del]');if(ed)edit(ed.dataset.edit);if(del){if(confirm('Delete this daily record?')){delete activeRecords()[del.dataset.del];persist();render();status('Record deleted.')}}});
+function backupText(){return JSON.stringify({app:'Shop Daily Sales',version:3,exportedAt:new Date().toISOString(),shops,currentShopId,recordsByShop},null,2)}
+function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+$('backup').onclick=()=>download('shop-sales-backup.json',backupText(),'application/json');
+$('uploadBackup').onclick=()=>$('backupFile').click();
+$('backupFile').addEventListener('change',async e=>{
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ try{
+  const obj=JSON.parse(await f.text());
+  if(obj&&Array.isArray(obj.shops)&&obj.recordsByShop&&typeof obj.recordsByShop==='object'){
+   const newShops=obj.shops.filter(s=>s&&s.id&&s.name).map(s=>({id:String(s.id),name:String(s.name)}));
+   if(!newShops.length)throw Error();
+   const newRecords={};for(const s of newShops){newRecords[s.id]={};const src=obj.recordsByShop[s.id]||{};for(const [d,r] of Object.entries(src)){if(/^\d{4}-\d{2}-\d{2}$/.test(d)&&r&&typeof r==='object')newRecords[s.id][d]={date:d,cash:Math.max(0,Number(r.cash)||0),card:Math.max(0,Number(r.card)||0)}}}
+   shops=newShops;recordsByShop=newRecords;currentShopId=newShops.some(s=>s.id===obj.currentShopId)?obj.currentShopId:newShops[0].id;
+  }else{
+   const src=obj&&obj.records&&typeof obj.records==='object'?obj.records:obj;if(!src||typeof src!=='object'||Array.isArray(src))throw Error();
+   const clean={};for(const [d,r] of Object.entries(src)){if(/^\d{4}-\d{2}-\d{2}$/.test(d)&&r&&typeof r==='object')clean[d]={date:d,cash:Math.max(0,Number(r.cash)||0),card:Math.max(0,Number(r.card)||0)}}
+   if(!Object.keys(clean).length)throw Error();
+   let shop=shops.find(s=>s.id===currentShopId);if(!shop){shop={id:makeId(),name:'Imported Shop'};shops.push(shop);currentShopId=shop.id}recordsByShop[currentShopId]=clean;
+  }
+  if(persist()){renderShops();render();status('Backup uploaded successfully.')}
+ }catch(err){status('Backup upload failed. Please select a valid shop sales backup JSON file.')}
+ e.target.value='';
+});
+function openReport(autoPrint){
+ const list=filtered(),cash=list.reduce((a,r)=>a+(+r.cash||0),0),card=list.reduce((a,r)=>a+(+r.card||0),0),sales=cash+card,avg=list.length?sales/list.length:0;
+ const shop=shops.find(s=>s.id===currentShopId)?.name||'Shop',period=$('reportType').selectedOptions[0].textContent;
+ const escHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const table=list.map(r=>`<tr><td>${escHtml(r.date)}</td><td>${dayName(r.date)}</td><td>${money(r.cash)}</td><td>${money(r.card)}</td><td>${money(total(r))}</td></tr>`).join('');
+ const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escHtml(shop)} - Sales Report</title><style>body{font:14px Arial,sans-serif;color:#111;padding:20px}h1,h2{text-align:center}p{text-align:center}.summary{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-around;margin:20px 0}.summary div{border:1px solid #999;padding:10px;min-width:120px;text-align:center}table{border-collapse:collapse;width:100%;margin-top:18px}th,td{border:1px solid #777;padding:8px;text-align:center}th{background:#eee}.actions{text-align:center;margin:16px}@media print{.actions{display:none}body{padding:0}}</style></head><body><h1>${escHtml(shop)}</h1><h2>${period} Report</h2><p>Generated: ${new Date().toLocaleString()}</p><div class="summary"><div>Total Cash<br><b>${money(cash)}</b></div><div>Total Card<br><b>${money(card)}</b></div><div>Total Sale<br><b>${money(sales)}</b></div><div>Average Sale<br><b>${money(avg)}</b></div></div><table><thead><tr><th>Date</th><th>Day</th><th>Cash</th><th>Card</th><th>Total Sale</th></tr></thead><tbody>${table||'<tr><td colspan="5">No records for this period</td></tr>'}</tbody><tfoot><tr><th colspan="2">TOTAL</th><th>${money(cash)}</th><th>${money(card)}</th><th>${money(sales)}</th></tr></tfoot></table><div class="actions"><button onclick="window.print()">Download / Save as PDF</button> <button onclick="window.close()">Close Preview</button><p>Preview first, then tap Download / Save as PDF.</p></div></body></html>`;
+ const w=window.open('','_blank');if(!w){status('Allow pop-ups to preview the report.');return}w.document.open();w.document.write(html);w.document.close();if(autoPrint)w.onload=()=>setTimeout(()=>w.print(),500);
+}
+$('previewPdf').onclick=()=>openReport(false);$('downloadPdf').onclick=()=>openReport(true);
+$('deleteAll').onclick=()=>{if(!confirm('Delete all records for "'+(shops.find(s=>s.id===currentShopId)?.name||'this shop')+'"? Other shops will not be affected.'))return;recordsByShop[currentShopId]={};persist();render();reset();status('All records for this shop deleted.')};
+function updateFilters(){const t=$('reportType').value;['dateFilter','weekFilter','monthFilter','yearFilter'].forEach(id=>$(id).classList.add('hidden'));const map={date:'dateFilter',week:'weekFilter',month:'monthFilter',year:'yearFilter'};$(map[t]).classList.remove('hidden');render()}
+$('reportType').onchange=updateFilters;['reportDate','weekDate','month','year'].forEach(id=>$(id).addEventListener('change',render));
+load();renderShops();const today=localDate(now);$('date').value=today;syncEntryDay();$('reportDate').value=today;$('weekDate').value=today;$('month').value=today.slice(0,7);const yr=now.getFullYear();for(let y=yr-10;y<=yr+1;y++){const o=document.createElement('option');o.value=String(y);o.textContent=String(y);if(y===yr)o.selected=true;$('year').appendChild(o)}updateFilters();persist();
+})();
+</script>
+</body>
+</html>
